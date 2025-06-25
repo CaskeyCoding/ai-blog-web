@@ -1,0 +1,170 @@
+/* Executive Branding Styles */
+
+.App {
+  min-height: 100vh;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+}
+
+/* Add pulse animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Timeline animations */
+.MuiTimelineItem-root {
+  transition: all 0.3s ease;
+}
+
+.MuiTimelineItem-root:hover .MuiTimelineDot-root {
+  transform: scale(1.1);
+}
+
+.MuiTimelineConnector-root {
+  transition: all 0.3s ease;
+}
+
+.MuiTimelineItem-root:hover .MuiTimelineConnector-root {
+  background: var(--color-accent) !important;
+}
+
+nav {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 1rem 0;
+}
+nav a {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  color: var(--color-primary);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  padding: 0.5rem 1rem;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+nav a:hover, nav a:focus {
+  color: var(--color-primary);
+  background: #f8fafc;
+  text-decoration: none;
+}
+/* Subtle underline effect */
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--color-accent);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+nav a:hover::after, nav a:focus::after {
+  width: 70%;
+}
+
+button, .MuiButton-root {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.75em 1.5em;
+  font-size: 0.9rem;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+button:hover, .MuiButton-root:hover, button:focus, .MuiButton-root:focus {
+  background: #002a52;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+button:active, .MuiButton-root:active {
+  transform: translateY(0px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+/* Secondary button styles */
+button.secondary, .MuiButton-outlined {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+button.secondary:hover, .MuiButton-outlined:hover {
+  background: #f8fafc;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Subtle hero section */
+.hero-section {
+  background: linear-gradient(135deg, #fbfcfd 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+/* Minimal section dividers */
+.section-divider {
+  width: 24px;
+  height: 1px;
+  background: var(--color-accent);
+  margin: 2rem auto;
+}
+
+/* Subtle card enhancements */
+.MuiPaper-root {
+  transition: all 0.2s ease !important;
+}
+
+.MuiPaper-root:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
+}
+
+section, .card, .MuiPaper-root {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 600px) {
+  nav ul {
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+  section, .card, .MuiPaper-root {
+    padding: 1rem;
+  }
+}
