@@ -7,7 +7,8 @@ import './config/amplify';  // Import Amplify configuration
 import { getBlogPosts, getBlogPost, BlogPost as BlogPostType } from './api/blog';
 import { triggerAgentRevision, scheduleBlogPost, generateBlogPost, getAgentStatus } from './api/agent';
 import { generateLinkedInPost } from './api/linkedin';
-import Home from './components/Home';
+import Landing from './components/Landing';
+import EricCaskey from './components/EricCaskey';
 import Profile from './components/Profile';
 import Footer from './components/Footer';
 import { Container, Typography, Paper, Box, TextField, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
@@ -761,6 +762,15 @@ function Navigation() {
                 Home
               </Typography>
             </Link>
+            <Link to="/ericcaskey" style={{ textDecoration: 'none' }}>
+              <Typography sx={{ 
+                color: palette.primary,
+                fontSize: { xs: '0.8rem', sm: '1rem' },
+                fontWeight: 500
+              }}>
+                About
+              </Typography>
+            </Link>
             <Link to="/profile" style={{ textDecoration: 'none' }}>
               <Typography sx={{ 
                 color: palette.primary,
@@ -826,29 +836,35 @@ function Navigation() {
 function AppContent() {
   return (
     <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Navigation />
+      <Routes>
+        {/* Landing page — standalone, no nav/footer */}
+        <Route path="/" element={<Landing />} />
 
-        <Box sx={{ flex: 1 }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/login" element={<Login />} />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/blog/:postId" element={<BlogPost />} />
-          </Routes>
-        </Box>
-
-        <Footer />
-      </Box>
+        {/* All other pages get the nav + footer shell */}
+        <Route path="*" element={
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Navigation />
+            <Box sx={{ flex: 1 }}>
+              <Routes>
+                <Route path="/ericcaskey" element={<EricCaskey />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/login" element={<Login />} />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/blog/:postId" element={<BlogPost />} />
+              </Routes>
+            </Box>
+            <Footer />
+          </Box>
+        } />
+      </Routes>
     </Router>
   );
 }
