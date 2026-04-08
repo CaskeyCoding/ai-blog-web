@@ -17,8 +17,7 @@ async function getAuthHeaders(): Promise<HeadersInit> {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     };
-  } catch (error) {
-    console.error('Error getting auth token:', error);
+  } catch (_) {
     throw new Error('Authentication required');
   }
 }

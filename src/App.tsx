@@ -237,19 +237,6 @@ function Blog() {
         setLoading(true);
         setError(null);
         const fetchedPosts = await getBlogPosts();
-        console.log('Fetched posts:', fetchedPosts);
-        // Debug: Show exactly what fields each post has
-        fetchedPosts.forEach((post, index) => {
-          console.log(`Post ${index}:`, {
-            postId: post.postId,
-            title: post.title,
-            hasContent: 'content' in post,
-            contentValue: post.content,
-            hasContentKey: 'contentKey' in post,
-            contentKeyValue: post.contentKey,
-            allFields: Object.keys(post)
-          });
-        });
         setPosts(fetchedPosts);
       } catch (err: any) {
         console.error('Error fetching blog posts:', err);
@@ -430,21 +417,6 @@ function Blog() {
                 </Box>
               )}
             </Typography>
-            
-            {/* Show debug info if content seems to be an error message */}
-            {post.content && post.content.startsWith('Error loading content') && (
-              <Box sx={{ 
-                p: 2, 
-                mb: 2, 
-                background: '#fef2f2', 
-                border: '1px solid #fecaca', 
-                borderRadius: 1,
-                fontSize: '0.8rem',
-                color: '#991b1b'
-              }}>
-                Debug: {post.content}
-              </Box>
-            )}
             
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (

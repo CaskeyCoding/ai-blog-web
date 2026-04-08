@@ -40,20 +40,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session.tokens?.accessToken) {
         setUser(currentUser);
         setIsAuthenticated(true);
-        console.log('User authenticated:', currentUser.username);
       } else {
         throw new Error('No valid session');
       }
     } catch (error: any) {
-      console.log('Auth check failed:', error.message);
       setIsAuthenticated(false);
       setUser(null);
-      
-      // Clear any stale auth data
       try {
         await signOut();
-      } catch (signOutError) {
-        console.log('Silent signout failed:', signOutError);
+      } catch (_) {
+        // Silent cleanup
       }
     } finally {
       setIsLoading(false);
@@ -78,9 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Clear any cached data
       localStorage.removeItem('amplify-signin-with-hostedUI');
       
-      console.log('Logout successful');
     } catch (error: any) {
-      console.error('Logout error:', error);
       setError(error.message || 'Logout failed');
       
       // Force clear state even if signOut fails
@@ -102,11 +96,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const session = await fetchAuthSession({ forceRefresh: true });
           if (!session.tokens?.accessToken) {
-            console.log('Token refresh failed, logging out');
+            // Token expired
             await logout();
           }
-        } catch (error) {
-          console.log('Token refresh failed:', error);
+        } catch (_) {
           await logout();
         }
       }
@@ -136,9 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsNewPasswordRequired(false);
       setSignInOutput(null);
       
-      console.log('Login successful:', currentUser.username);
     } catch (error: any) {
-      console.error('Login error:', error);
       setError(error.message || 'Login failed');
       setIsAuthenticated(false);
       setUser(null);
@@ -168,9 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsNewPasswordRequired(false);
       setSignInOutput(null);
       
-      console.log('Password changed successfully');
     } catch (error: any) {
-      console.error('Change password error:', error);
       setError(error.message || 'Password change failed');
       throw error;
     } finally {

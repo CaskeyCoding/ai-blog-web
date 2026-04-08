@@ -13,46 +13,19 @@ export interface BlogPost {
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  try {
-    const res = await fetch(`${API_URL}/blog`);
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error('Blog fetch error:', {
-        status: res.status,
-        statusText: res.statusText,
-        errorData
-      });
-      throw new Error(`Failed to fetch blog posts: ${res.statusText}`);
-    }
-    const posts = await res.json();
-    console.log('Successfully fetched blog posts:', posts);
-    return posts;
-  } catch (error) {
-    console.error('Error in getBlogPosts:', error);
-    throw error;
+  const res = await fetch(`${API_URL}/blog`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch blog posts: ${res.statusText}`);
   }
+  return res.json();
 }
 
 export async function getBlogPost(postId: string): Promise<BlogPost> {
-  try {
-    const res = await fetch(`${API_URL}/blog/${postId}`);
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error('Blog post fetch error:', {
-        postId,
-        status: res.status,
-        statusText: res.statusText,
-        errorData
-      });
-      throw new Error(`Failed to fetch blog post: ${res.statusText}`);
-    }
-    const post = await res.json();
-    console.log('Successfully fetched blog post:', post);
-    return post;
-  } catch (error) {
-    console.error('Error in getBlogPost:', error);
-    throw error;
+  const res = await fetch(`${API_URL}/blog/${postId}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch blog post: ${res.statusText}`);
   }
+  return res.json();
 }
 
 export async function createBlogPost(post: Partial<BlogPost>): Promise<BlogPost> {
