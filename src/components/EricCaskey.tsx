@@ -36,22 +36,23 @@ const LogoContainer = styled(Box)({
   }
 });
 
-// Professional history data from Positions.csv
 const timeline = [
   {
     title: 'Senior Software Development Engineer',
     company: 'Amazon',
     period: '2022–Present',
     location: 'New York City Metropolitan Area',
-    description: 'Leading development of mission-critical systems at Amazon, driving innovation in infrastructure management solutions. Spearheading initiatives that enhance platform reliability and scalability while mentoring engineering teams.',
+    description: 'Architected and drove adoption of a microservice platform that continuously keeps infrastructure monitoring current across internal tools and AWS CloudWatch. The system scrapes multiple APIs and S3 data sources, ingests SNS notifications, and automatically reconciles monitor changes to maintain coverage. Designed and own two Java-like PDL orchestration workflows used by every infrastructure change in the application, with pre/post execution checks and automated rollback guardrails. The platform supports 20 engineers building on it, 100+ users interacting through the UI, and multiple backend automation jobs as the org standard for change safety.',
+    tech: 'Java · Python · PDL · AWS CloudWatch · SNS · S3 · Microservices · Distributed Systems · Change Safety',
     logo: '/amazon-logo.png'
   },
   {
-    title: 'Cloud Engineering & SRE',
+    title: 'Cloud Engineering & SRE — Platform Architect',
     company: 'Prudential Financial',
     period: '2013–2022',
     location: 'Roseland, NJ',
-    description: 'Progressive roles in remote access, automation, and cloud engineering. Delivered enterprise-scale MFA/VPN solutions, led automation initiatives, and played a key role in Prudential\'s remote work transformation.',
+    description: 'Defined and deployed VitalNet as the enterprise monitoring standard across Prudential\'s infrastructure. Served as sole technical owner of all financial reporting and accounting delivery during COVID-19. Conceived and launched the QR Code MFA enrollment portal adopted by all enterprise help desks. Owned end-to-end deployment of the RSA Self Service Portal and co-designed its mobile application.',
+    tech: 'Infrastructure Monitoring · Enterprise Security · MFA · Platform Engineering · SRE',
     logo: '/prudential-logo.png'
   },
   {
@@ -59,7 +60,7 @@ const timeline = [
     company: 'Workforce Opportunity Services',
     period: '2011–2013',
     location: 'Roseland, NJ',
-    description: "Launched my technology career as a WOS consultant, rapidly mastering corporate IT environments and contributing to Prudential's remote access operations.",
+    description: "Launched my technology career as a WOS consultant, rapidly mastering enterprise IT environments and contributing to Prudential's remote access platform operations.",
     logo: '/wos-logo.jfif'
   },
   {
@@ -67,7 +68,7 @@ const timeline = [
     company: 'Caskey Coding',
     period: '2015–2018',
     location: 'Elizabeth, NJ',
-    description: 'Developed websites and SEO solutions for local businesses, helping the New Jersey community thrive online.',
+    description: 'Founded a web development consultancy serving local businesses — designing, building, and optimizing web platforms and SEO strategies.',
     logo: caskeyLogoUrl,
   },
   {
@@ -75,7 +76,7 @@ const timeline = [
     company: 'NJ Army National Guard',
     period: '2009–2015',
     location: 'Port Murray, NJ',
-    description: 'Served as a Military Police Officer, supporting operations, disaster response, and new soldier mentorship.',
+    description: 'Served as a Military Police Officer, leading operations, disaster response coordination, and new soldier mentorship.',
     logo: '/njng-logo.png'
   },
 ];
@@ -151,17 +152,16 @@ export default function EricCaskey() {
                 fontWeight: 400, 
                 mb: 3
               }}>
-                Senior Software Development Engineer
+                Enterprise Platform Engineering at Scale
               </Typography>
               <Typography variant="body1" sx={{ 
                 color: palette.text, 
                 mb: 4, 
                 lineHeight: 1.7,
-                maxWidth: 500,
+                maxWidth: 540,
                 opacity: 0.9
               }}>
-                Transforming complex challenges into elegant solutions at Amazon. Passionate about scalable systems, 
-                team leadership, and driving innovation in cloud infrastructure.
+                I build enterprise-scale software platforms that standardize infrastructure change safety, continuously keep monitoring current, and reduce operational risk as adoption scales across teams.
               </Typography>
               
               <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'center', md: 'flex-start' }}>
@@ -232,7 +232,7 @@ export default function EricCaskey() {
             maxWidth: 600,
             margin: '0 auto 2rem auto'
           }}>
-            A decade of technical leadership and innovation across enterprise and cloud platforms
+            15+ years architecting enterprise software platforms, reliability systems, and change-safety standards adopted across organizations
           </Typography>
           
           {/* Subtle section divider */}
@@ -357,6 +357,18 @@ export default function EricCaskey() {
                     }}>
                       {item.description}
                     </Typography>
+                    {item.tech && (
+                      <Typography variant="caption" sx={{
+                        display: 'block',
+                        mt: 1.5,
+                        color: '#64748b',
+                        fontWeight: 500,
+                        fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        letterSpacing: '0.02em'
+                      }}>
+                        {item.tech}
+                      </Typography>
+                    )}
                   </Paper>
                 </TimelineContent>
               </TimelineItem>

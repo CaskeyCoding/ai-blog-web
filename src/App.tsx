@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css';
@@ -11,11 +11,15 @@ import Landing from './components/Landing';
 import EricCaskey from './components/EricCaskey';
 import Profile from './components/Profile';
 import Footer from './components/Footer';
-import { Container, Typography, Paper, Box, TextField, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Container, Typography, Paper, Box, TextField, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Skeleton } from '@mui/material';
 import InsertCommentOutlinedIcon from '@mui/icons-material/InsertCommentOutlined';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const palette = {
   primary: '#003366',
@@ -23,6 +27,115 @@ const palette = {
   text: '#222222',
   background: '#ffffff',
   error: '#d32f2f'
+};
+
+function stripMarkdown(md: string): string {
+  return md
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/`{1,3}[^`]*`{1,3}/g, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/^>\s+/gm, '')
+    .replace(/\|/g, ' ')
+    .replace(/^[-:| ]+$/gm, '')
+    .replace(/\n{2,}/g, ' ')
+    .replace(/\n/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function readingTime(content: string): string {
+  const words = content.trim().split(/\s+/).length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  return `${minutes} min read`;
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
+const markdownComponents: Record<string, React.FC<any>> = {
+  h1: ({ children, ...props }: any) => (
+    <Typography variant="h3" sx={{ color: palette.primary, fontWeight: 700, mt: 5, mb: 2, lineHeight: 1.3 }} {...props}>{children}</Typography>
+  ),
+  h2: ({ children, ...props }: any) => (
+    <Typography variant="h4" sx={{ color: palette.primary, fontWeight: 600, mt: 4, mb: 2, lineHeight: 1.3 }} {...props}>{children}</Typography>
+  ),
+  h3: ({ children, ...props }: any) => (
+    <Typography variant="h5" sx={{ color: palette.primary, fontWeight: 600, mt: 3, mb: 1.5, lineHeight: 1.3 }} {...props}>{children}</Typography>
+  ),
+  h4: ({ children, ...props }: any) => (
+    <Typography variant="h6" sx={{ color: palette.primary, fontWeight: 600, mt: 2.5, mb: 1, lineHeight: 1.3 }} {...props}>{children}</Typography>
+  ),
+  h5: ({ children, ...props }: any) => (
+    <Typography variant="subtitle1" sx={{ color: palette.primary, fontWeight: 600, mt: 2, mb: 1 }} {...props}>{children}</Typography>
+  ),
+  h6: ({ children, ...props }: any) => (
+    <Typography variant="subtitle2" sx={{ color: palette.primary, fontWeight: 600, mt: 2, mb: 1 }} {...props}>{children}</Typography>
+  ),
+  p: ({ children, ...props }: any) => (
+    <Typography variant="body1" sx={{ color: palette.text, mb: 2, lineHeight: 1.8, fontSize: '1.1rem' }} {...props}>{children}</Typography>
+  ),
+  a: ({ href, children, ...props }: any) => (
+    <Link to={href?.startsWith('/') ? href : '#'} onClick={(e: React.MouseEvent) => {
+      if (href && !href.startsWith('/')) {
+        e.preventDefault();
+        window.open(href, '_blank', 'noopener,noreferrer');
+      }
+    }} style={{ color: palette.accent, fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '3px' }} {...props}>{children}</Link>
+  ),
+  blockquote: ({ children, ...props }: any) => (
+    <Box component="blockquote" sx={{ borderLeft: `3px solid ${palette.accent}`, pl: 3, py: 1, my: 3, mx: 0, background: '#fafbfc', borderRadius: '0 8px 8px 0' }} {...props}>{children}</Box>
+  ),
+  ul: ({ children, ...props }: any) => (
+    <Box component="ul" sx={{ pl: 3, mb: 2, '& li': { mb: 0.5, lineHeight: 1.8, fontSize: '1.1rem', color: palette.text } }} {...props}>{children}</Box>
+  ),
+  ol: ({ children, ...props }: any) => (
+    <Box component="ol" sx={{ pl: 3, mb: 2, '& li': { mb: 0.5, lineHeight: 1.8, fontSize: '1.1rem', color: palette.text } }} {...props}>{children}</Box>
+  ),
+  img: ({ src, alt, ...props }: any) => (
+    <Box component="img" src={src} alt={alt} sx={{ maxWidth: '100%', height: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', my: 2, display: 'block' }} {...props} />
+  ),
+  table: ({ children, ...props }: any) => (
+    <Box sx={{ overflowX: 'auto', mb: 3 }}>
+      <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }} {...props}>{children}</Box>
+    </Box>
+  ),
+  th: ({ children, ...props }: any) => (
+    <Box component="th" sx={{ textAlign: 'left', p: 1.5, borderBottom: '2px solid #e2e8f0', fontWeight: 600, color: palette.primary, background: '#f8fafc' }} {...props}>{children}</Box>
+  ),
+  td: ({ children, ...props }: any) => (
+    <Box component="td" sx={{ p: 1.5, borderBottom: '1px solid #f1f5f9', color: palette.text }} {...props}>{children}</Box>
+  ),
+  hr: (props: any) => (
+    <Box component="hr" sx={{ border: 'none', borderTop: '1px solid #e2e8f0', my: 4 }} {...props} />
+  ),
+  code: ({ className, children, ...props }: any) => {
+    const match = /language-(\w+)/.exec(className || '');
+    const inline = !className;
+    if (inline) {
+      return (
+        <Box component="code" sx={{ background: '#f1f5f9', color: '#0f172a', px: 0.75, py: 0.25, borderRadius: '4px', fontSize: '0.9em', fontFamily: 'source-code-pro, Menlo, Monaco, Consolas, monospace' }} {...props}>{children}</Box>
+      );
+    }
+    return (
+      <SyntaxHighlighter
+        style={oneLight}
+        language={match ? match[1] : 'text'}
+        PreTag="div"
+        customStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.9rem', margin: '16px 0' }}
+        {...props}
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    );
+  },
+  pre: ({ children }: any) => <>{children}</>,
 };
 
 // Error Boundary Component
@@ -94,12 +207,26 @@ function BlogPost() {
     fetchPost();
   }, [postId]);
 
+  useEffect(() => {
+    document.title = post ? `${post.title} | Eric Caskey` : 'Blog | Eric Caskey';
+    return () => { document.title = 'Eric Caskey – Enterprise Platform Engineering'; };
+  }, [post]);
+
   if (loading) {
     return (
-      <Container sx={{ py: 6, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <Typography variant="h6" sx={{ color: palette.primary }}>
-          Loading blog post...
-        </Typography>
+      <Container maxWidth="md" sx={{ py: 6 }}>
+        <Skeleton variant="text" width={120} sx={{ mb: 3 }} />
+        <Paper elevation={1} sx={{ p: 4, background: '#fff', border: '1px solid #f1f5f9', borderRadius: 2 }}>
+          <Skeleton variant="text" width="80%" height={48} sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" width={140} />
+          </Box>
+          <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2, mb: 3 }} />
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} variant="text" width={i === 7 ? '60%' : '100%'} sx={{ mb: 1 }} />
+          ))}
+        </Paper>
       </Container>
     );
   }
@@ -138,7 +265,7 @@ function BlogPost() {
       </Button>
       
       <Paper elevation={1} sx={{ 
-        p: 4, 
+        p: { xs: 3, sm: 4, md: 5 }, 
         background: '#fff',
         border: '1px solid #f1f5f9',
         borderRadius: 2
@@ -152,8 +279,7 @@ function BlogPost() {
           {post.title}
         </Typography>
         
-        {/* Author and date info */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4, flexWrap: 'wrap' }}>
           <Typography variant="body2" sx={{ color: '#64748b' }}>
             By {post.author || 'Eric Caskey'}
           </Typography>
@@ -169,9 +295,16 @@ function BlogPost() {
               </Typography>
             </>
           )}
+          {post.content && (
+            <>
+              <Box sx={{ width: 4, height: 4, borderRadius: '50%', background: '#cbd5e1' }} />
+              <Typography variant="body2" sx={{ color: '#64748b' }}>
+                {readingTime(post.content)}
+              </Typography>
+            </>
+          )}
         </Box>
         
-        {/* Featured Image */}
         {post.imageUrl && (
           <Box sx={{ mb: 4 }}>
             <img 
@@ -189,20 +322,20 @@ function BlogPost() {
           </Box>
         )}
         
-        {/* Content */}
-        <Typography variant="body1" sx={{ 
-          color: palette.text, 
-          mb: 3,
-          lineHeight: 1.7,
-          whiteSpace: 'pre-wrap',
-          fontSize: '1.1rem'
-        }}>
-          {post.content || 'Content not available'}
-        </Typography>
+        <Box sx={{ '& > :first-of-type': { mt: 0 } }}>
+          {post.content ? (
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+              {post.content}
+            </ReactMarkdown>
+          ) : (
+            <Typography variant="body1" sx={{ color: '#64748b', fontStyle: 'italic' }}>
+              Content not available
+            </Typography>
+          )}
+        </Box>
         
-        {/* Tags */}
         {post.tags && post.tags.length > 0 && (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 4 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 4, pt: 3, borderTop: '1px solid #f1f5f9' }}>
             {post.tags.map((tag: string) => (
               <Box
                 key={tag}
@@ -248,12 +381,32 @@ function Blog() {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    document.title = 'Blog | Eric Caskey';
+    return () => { document.title = 'Eric Caskey – Enterprise Platform Engineering'; };
+  }, []);
+
   if (loading) {
     return (
-      <Container sx={{ py: 6, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <Typography variant="h6" sx={{ color: palette.primary }}>
-          Loading blog posts...
-        </Typography>
+      <Container maxWidth="md" sx={{ py: 6 }}>
+        <Skeleton variant="text" width={160} height={48} sx={{ mx: 'auto', mb: 6 }} />
+        {[0, 1, 2].map((i) => (
+          <Paper key={i} elevation={1} sx={{ p: 4, mb: 4, background: '#fff', border: '1px solid #f1f5f9', borderRadius: 2 }}>
+            <Skeleton variant="text" width="70%" height={36} sx={{ mb: 2 }} />
+            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+              <Skeleton variant="text" width={100} />
+              <Skeleton variant="text" width={130} />
+              <Skeleton variant="text" width={80} />
+            </Box>
+            <Skeleton variant="text" width="100%" sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width="100%" sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width="45%" sx={{ mb: 2 }} />
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Skeleton variant="rounded" width={70} height={26} />
+              <Skeleton variant="rounded" width={90} height={26} />
+            </Box>
+          </Paper>
+        ))}
       </Container>
     );
   }
@@ -280,7 +433,6 @@ function Blog() {
     );
   }
 
-  // Empty state: no posts
   if (posts.length === 0) {
     return (
       <Container maxWidth="sm" sx={{ py: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -297,7 +449,6 @@ function Blog() {
     );
   }
 
-  // Display posts
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
       <Typography variant="h3" sx={{ color: palette.primary, fontWeight: 700, mb: 6, textAlign: 'center' }}>
@@ -305,142 +456,148 @@ function Blog() {
       </Typography>
       
       <Box>
-        {posts.map((post) => (
-          <Paper key={post.postId} elevation={1} sx={{ 
-            p: 4, 
-            mb: 4,
-            background: '#fff',
-            border: '1px solid #f1f5f9',
-            borderRadius: 2,
-            '&:hover': {
-              borderColor: '#e2e8f0',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
-            },
-            transition: 'all 0.3s ease'
-          }}>
-            <Typography variant="h4" sx={{ 
-              color: palette.primary, 
-              fontWeight: 600, 
-              mb: 2,
-              lineHeight: 1.3,
-              '& a': {
-                textDecoration: 'none',
-                color: 'inherit',
-                transition: 'color 0.2s ease',
-                '&:hover': {
-                  color: palette.accent
+        {posts.map((post) => {
+          const preview = post.content ? stripMarkdown(post.content) : '';
+          return (
+            <Paper key={post.postId} elevation={1} sx={{ 
+              p: 4, 
+              mb: 4,
+              background: '#fff',
+              border: '1px solid #f1f5f9',
+              borderRadius: 2,
+              '&:hover': {
+                borderColor: '#e2e8f0',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+              },
+              transition: 'all 0.3s ease'
+            }}>
+              <Typography variant="h4" sx={{ 
+                color: palette.primary, 
+                fontWeight: 600, 
+                mb: 2,
+                lineHeight: 1.3,
+                '& a': {
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  transition: 'color 0.2s ease',
+                  '&:hover': {
+                    color: palette.accent
+                  }
                 }
-              }
-            }}>
-              <Link to={`/blog/${post.slug || post.postId}`}>
-                {post.title}
-              </Link>
-            </Typography>
-            
-            {/* Author and date info */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-              <Typography variant="body2" sx={{ color: '#64748b' }}>
-                By {post.author || 'Eric Caskey'}
+              }}>
+                <Link to={`/blog/${post.slug || post.postId}`}>
+                  {post.title}
+                </Link>
               </Typography>
-              {post.createdAt && (
-                <>
-                  <Box sx={{ width: 4, height: 4, borderRadius: '50%', background: '#cbd5e1' }} />
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    {new Date(post.createdAt).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
-                  </Typography>
-                </>
-              )}
-            </Box>
-            
-            {/* Thumbnail Image */}
-            {post.imageUrl && (
-              <Box sx={{ mb: 3 }}>
-                <img 
-                  src={post.imageUrl} 
-                  alt={post.title}
-                  style={{
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0'
-                  }}
-                />
-              </Box>
-            )}
-            
-            {/* Content */}
-            <Typography variant="body1" sx={{ 
-              color: palette.text, 
-              mb: 3,
-              lineHeight: 1.7,
-              whiteSpace: 'pre-wrap'
-            }}>
-              {post.content ? (
-                post.content.length > 200 ? (
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                <Typography variant="body2" sx={{ color: '#64748b' }}>
+                  By {post.author || 'Eric Caskey'}
+                </Typography>
+                {post.createdAt && (
                   <>
-                    {post.content.substring(0, 200)}...
+                    <Box sx={{ width: 4, height: 4, borderRadius: '50%', background: '#cbd5e1' }} />
+                    <Typography variant="body2" sx={{ color: '#64748b' }}>
+                      {new Date(post.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </Typography>
+                  </>
+                )}
+                {post.content && (
+                  <>
+                    <Box sx={{ width: 4, height: 4, borderRadius: '50%', background: '#cbd5e1' }} />
+                    <Typography variant="body2" sx={{ color: '#64748b' }}>
+                      {readingTime(post.content)}
+                    </Typography>
+                  </>
+                )}
+              </Box>
+              
+              {post.imageUrl && (
+                <Box sx={{ mb: 3 }}>
+                  <img 
+                    src={post.imageUrl} 
+                    alt={post.title}
+                    style={{
+                      width: '100%',
+                      height: '200px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0'
+                    }}
+                  />
+                </Box>
+              )}
+              
+              <Typography variant="body1" sx={{ 
+                color: palette.text, 
+                mb: 3,
+                lineHeight: 1.7
+              }}>
+                {preview ? (
+                  preview.length > 200 ? (
+                    <>
+                      {preview.substring(0, 200)}...
+                      <Link 
+                        to={`/blog/${post.slug || post.postId}`}
+                        style={{ 
+                          color: palette.accent, 
+                          textDecoration: 'none',
+                          fontWeight: 500,
+                          marginLeft: '8px'
+                        }}
+                      >
+                        Read more →
+                      </Link>
+                    </>
+                  ) : (
+                    preview
+                  )
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography component="span" sx={{ color: '#64748b', fontStyle: 'italic' }}>
+                      Preview not available.
+                    </Typography>
                     <Link 
                       to={`/blog/${post.slug || post.postId}`}
                       style={{ 
                         color: palette.accent, 
                         textDecoration: 'none',
-                        fontWeight: 500,
-                        marginLeft: '8px'
+                        fontWeight: 500
                       }}
                     >
-                      Read more →
+                      Read full post →
                     </Link>
-                  </>
-                ) : (
-                  post.content
-                )
-              ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
-                    Preview not available.
-                  </Typography>
-                  <Link 
-                    to={`/blog/${post.slug || post.postId}`}
-                    style={{ 
-                      color: palette.accent, 
-                      textDecoration: 'none',
-                      fontWeight: 500
-                    }}
-                  >
-                    Read full post →
-                  </Link>
+                  </Box>
+                )}
+              </Typography>
+              
+              {post.tags && post.tags.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {post.tags.map((tag: string) => (
+                    <Box
+                      key={tag}
+                      sx={{
+                        background: `${palette.accent}10`,
+                        color: palette.accent,
+                        fontWeight: 500,
+                        fontSize: '0.8rem',
+                        borderRadius: 1,
+                        padding: '4px 8px',
+                        border: `1px solid ${palette.accent}20`
+                      }}
+                    >
+                      {tag}
+                    </Box>
+                  ))}
                 </Box>
               )}
-            </Typography>
-            
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {post.tags.map((tag: string) => (
-                  <Box
-                    key={tag}
-                    sx={{
-                      background: `${palette.accent}10`,
-                      color: palette.accent,
-                      fontWeight: 500,
-                      fontSize: '0.8rem',
-                      borderRadius: 1,
-                      padding: '4px 8px',
-                      border: `1px solid ${palette.accent}20`
-                    }}
-                  >
-                    {tag}
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Paper>
-        ))}
+            </Paper>
+          );
+        })}
       </Box>
     </Container>
   );
@@ -740,7 +897,7 @@ function Navigation() {
                 fontSize: { xs: '0.8rem', sm: '1rem' },
                 fontWeight: 500
               }}>
-                About
+                Case Studies
               </Typography>
             </Link>
             <Link to="/profile" style={{ textDecoration: 'none' }}>
@@ -808,6 +965,7 @@ function Navigation() {
 function AppContent() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Landing page — standalone, no nav/footer */}
         <Route path="/" element={<Landing />} />

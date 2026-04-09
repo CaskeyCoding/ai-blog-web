@@ -2,7 +2,7 @@
 
 Doug Kerwin's *[Enterprise Vibe Coding Playbook](https://www.amazon.com/s?k=Enterprise+Vibe+Coding+Playbook+Doug+Kerwin)* arrives at a critical inflection point in software development. As organizations wrestle with AI integration, this book cuts through the hype and delivers a pragmatic framework for how real teams actually build real software with AI as a partner—not a replacement.
 
-I approached this book as a skeptic with a vested interest in getting it right. As a senior engineer at Amazon managing a team of engineers building large-scale applications, I've seen firsthand both the transformative potential of AI-assisted development and the organizational resistance that slows adoption. This review is part book critique and part field report from the trenches.
+I approached this book as a skeptic with a vested interest in getting it right. As an engineer at Amazon who architects platform infrastructure and leads teams building large-scale systems, I've seen firsthand both the transformative potential of AI-assisted development and the organizational resistance that slows adoption. This review is part book critique and part field report from the trenches.
 
 ## The Core Thesis: AI as Accelerator, Not Magic
 
@@ -34,7 +34,7 @@ This approach underscores a critical insight: IDEs, agents, and AI-assisted capa
 
 Chapter 4 dives into prompting, and Kerwin draws a comparison to writing user stories. The analogy is apt: bad prompts are like bad user stories. They're vague, they lack context, and they leave room for misinterpretation. I have personal experience with Kerwin pushing this point during a reorganization at a previous company, and I've seen the exact same problem at Amazon. Engineers and managers consistently under-invest in clarity at the spec stage, then wonder why the output (human or AI) misses the mark.
 
-Good prompts require the same discipline as good user stories: clarity, specificity, constraints, and acceptance criteria. The thinking is harder upfront, but the downstream efficiency is dramatic.
+Good prompts require the same discipline as good user stories: clarity, specificity, constraints, and acceptance criteria. The thinking is harder upfront, but the downstream efficiency is dramatic. And if a good prompt is a good user story, the logical next step is a full specification—a persistent document that captures requirements, design decisions, and acceptance criteria in one place. The prompt is the starting point. The spec is the destination. (I explore this further in my companion piece, [Spec-Driven Development and the Folder Architecture That Makes It Work](/blog/spec-driven-development-and-the-folder-architecture-that-makes-it-work).)
 
 But prompting is just one dimension. Chapter 7 pivots to a broader theme: **how you show up in an AI-driven engineering culture**. Kerwin identifies two archetypes worth watching for:
 
@@ -42,13 +42,15 @@ But prompting is just one dimension. Chapter 7 pivots to a broader theme: **how 
 
 **The Expert's Paradox:** Experienced engineers sometimes confine AI to narrow tasks—documentation, simple functions—while refusing to delegate more complex thinking. This self-imposed limitation leaves performance on the table.
 
-## The Unsexy Part: Design and Discipline
+## The Underrated Part: Design and Discipline
 
 Chapter 6 is titled "Design Don't Dive In," and I couldn't agree more. The difference between a hastily assembled codebase and a maintainable system is upfront thinking. With AI, this becomes even more critical. You can use AI as your thinking partner to reason through the user layer, the UI layer, the data layer, the business rules, the edge cases, the data models. You can ask it to challenge your assumptions. But you can't skip the thinking.
 
 Design is the differentiator. AI excels at implementation and iteration, but it cannot replace architectural judgment, domain expertise, or the messy work of understanding constraints.
 
 Kerwin also acknowledges what often gets overlooked: even with AI assistance, the underlying code is often a mess underneath. Shortcuts, glue code, technical debt—these don't disappear. They're just easier to accumulate if you're not disciplined. This reaffirms that using AI to accelerate development doesn't mean lowering standards. It means raising the bar on review and refactoring.
+
+But here's the question Kerwin leaves open: if the thinking is non-negotiable, where does it live? Not in chat history that evaporates between sessions. Not in your head. Not in a prompt you paste in each morning. The thinking needs a home—persistent, reviewable, and structured enough that both humans and AI can follow it. That's the territory of spec-driven development and structured folder architecture, and it's where I think the next chapter of this conversation is being written.
 
 ## The Quiet Revolution: Voice and Thinking Out Loud
 
@@ -64,11 +66,13 @@ Here's what Kerwin does well but what every team will struggle with: moving from
 
 At Amazon, I've seen both sides. Teams that embrace AI-assisted development with disciplined prompting, strong design practices, and a commitment to review are shipping at a different velocity. Teams that resist are falling behind. The gap widens every quarter.
 
-But adoption is cultural, not technical. It requires skeptics to engage rather than complain. It requires experts to experiment rather than gatekeep. It requires organizations to invest in training people how to prompt, how to design for AI assistance, and how to integrate these tools into their workflows.
+But adoption is cultural, not technical. It requires skeptics to engage rather than complain. It requires experts to experiment rather than gatekeep. It requires organizations to invest in training people how to prompt, how to design for AI assistance, and how to integrate these tools into their workflows. And it requires artifacts that make AI-assisted work legible to the organization—specs that product managers can review, folder structures that new engineers can navigate, routing tables that make the AI's behavior predictable rather than mysterious.
 
 ## A Complementary Read
 
 If you finish *[Enterprise Vibe Coding Playbook](https://www.amazon.com/s?k=Enterprise+Vibe+Coding+Playbook+Doug+Kerwin)* and want to deepen your understanding of AI's role in leadership and organizational change, I'd recommend *[The AI-Driven Leader](https://www.amazon.com/s?k=The+AI-Driven+Leader+Geoff+Woods)* by Geoff Woods. It builds on the "thinking partner" model that Kerwin introduces and extends it beyond engineering to product, strategy, and organizational design.
+
+And if you're ready to move from philosophy to methodology—to see how the "design don't dive in" mindset translates into persistent specs, structured folder architecture, and context-aware AI workflows—I wrote a companion piece: [Spec-Driven Development and the Folder Architecture That Makes It Work](/blog/spec-driven-development-and-the-folder-architecture-that-makes-it-work).
 
 ## The Verdict
 
