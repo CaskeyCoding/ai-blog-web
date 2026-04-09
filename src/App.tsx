@@ -17,6 +17,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import CoachDashboard from './components/CoachDashboard';
+import FinanceDashboard from './components/FinanceDashboard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -949,6 +950,9 @@ function Navigation() {
                 <Link to="/coach" style={{ textDecoration: 'none' }}>
                   <Typography sx={navLinkSx('/coach')}>Coach</Typography>
                 </Link>
+                <Link to="/finance" style={{ textDecoration: 'none' }}>
+                  <Typography sx={navLinkSx('/finance')}>Finance</Typography>
+                </Link>
                 <Link to="/admin" style={{ textDecoration: 'none' }}>
                   <Typography sx={navLinkSx('/admin')}>Admin</Typography>
                 </Link>
@@ -1007,7 +1011,22 @@ function AppContent() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/coach" element={<CoachDashboard />} />
+                <Route 
+                  path="/coach" 
+                  element={
+                    <ProtectedRoute>
+                      <CoachDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance" 
+                  element={
+                    <ProtectedRoute>
+                      <FinanceDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route 
                   path="/admin" 
                   element={

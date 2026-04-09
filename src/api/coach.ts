@@ -2,12 +2,8 @@ import { API_CONFIG } from '../config';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 const API_URL = API_CONFIG.API_URL;
-const IS_LOCAL = API_URL.includes('localhost');
 
 async function getAuthHeaders(): Promise<HeadersInit> {
-  if (IS_LOCAL) {
-    return { 'Content-Type': 'application/json' };
-  }
   const session = await fetchAuthSession();
   const token = session.tokens?.idToken?.toString();
   if (!token) throw new Error('No authentication token available');
@@ -269,6 +265,34 @@ export async function importCsv(
     body: JSON.stringify({ csv: csvText, ...profileInfo }),
   });
   if (!res.ok) throw new Error('Failed to import CSV');
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Chat
+// ---------------------------------------------------------------------------
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  conversation_history: ChatMessage[];
+}
+
+export async function sendChatMessage(
+  message: string,
+  conversationHistory: ChatMessage[] = [],
+): Promise<ChatResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_URL}/coach/chat`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ message, conversation_history: conversationHistory }),
+  });
+  if (!res.ok) throw new Error('Failed to send chat message');
   return res.json();
 }
 

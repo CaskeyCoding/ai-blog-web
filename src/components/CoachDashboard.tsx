@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Container, Typography, Box, Paper, Button, Stack, TextField,
   Chip, Skeleton, Alert, MenuItem, Select, InputLabel, FormControl,
   FormControlLabel, Switch, Divider, LinearProgress, Collapse,
-  SelectChangeEvent,
+  SelectChangeEvent, IconButton, Avatar, CircularProgress,
 } from '@mui/material';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -11,11 +11,16 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SportsIcon from '@mui/icons-material/Sports';
+import ChatIcon from '@mui/icons-material/Chat';
+import SendIcon from '@mui/icons-material/Send';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import PersonIcon from '@mui/icons-material/Person';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   getProfile, saveProfile, getMetrics, requestRecommendation,
-  submitActivity, submitRecovery, importCsv,
+  submitActivity, submitRecovery, importCsv, sendChatMessage,
   type AthleteProfile, type MetricsResponse, type RecommendationResponse,
-  type CsvImportResult,
+  type CsvImportResult, type ChatMessage,
 } from '../api/coach';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { palette } from '../theme';
@@ -564,6 +569,212 @@ function RecommendationPanel({ profile }: { profile: AthleteProfile | null }) {
 }
 
 // ---------------------------------------------------------------------------
+// Section: Chat with Coach
+// ---------------------------------------------------------------------------
+
+const QUICK_PROMPTS = [
+  'How is my training load looking?',
+  'Am I ready for a long run this weekend?',
+  'What should I focus on this week?',
+  'How does my pace trend look?',
+];
+
+function ChatPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<ChatMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const send = async (text: string) => {
+    if (!text.trim() || loading) return;
+    const userMsg: ChatMessage = { role: 'user', content: text.trim() };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setLoading(true);
+    try {
+      const resp = await sendChatMessage(text.trim(), history);
+      const assistantMsg: ChatMessage = { role: 'assistant', content: resp.reply };
+      setMessages(prev => [...prev, assistantMsg]);
+      setHistory(resp.conversation_history);
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: 'Sorry, I couldn\'t process that. Please try again.' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send(input);
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <Paper
+      elevation={8}
+      sx={{
+        position: 'fixed',
+        bottom: 24,
+        right: 24,
+        width: { xs: 'calc(100% - 48px)', sm: 420 },
+        height: { xs: 'calc(100% - 120px)', sm: 560 },
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 1300,
+        borderRadius: 3,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Header */}
+      <Box sx={{
+        px: 2, py: 1.5,
+        background: `linear-gradient(135deg, ${palette.primary}, ${palette.accent})`,
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <SmartToyIcon />
+          <Typography variant="subtitle1" fontWeight={700}>Coach Chat</Typography>
+        </Stack>
+        <IconButton size="small" onClick={onClose} sx={{ color: '#fff' }}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+
+      {/* Messages */}
+      <Box sx={{
+        flex: 1, overflowY: 'auto', p: 2,
+        backgroundColor: '#fafafa',
+        display: 'flex', flexDirection: 'column', gap: 1.5,
+      }}>
+        {messages.length === 0 && (
+          <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <SmartToyIcon sx={{ fontSize: 48, color: '#bbb', mb: 1 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Ask me anything about your training!
+            </Typography>
+            <Stack spacing={1}>
+              {QUICK_PROMPTS.map(q => (
+                <Button
+                  key={q}
+                  size="small"
+                  variant="outlined"
+                  onClick={() => send(q)}
+                  sx={{
+                    textTransform: 'none',
+                    borderColor: '#ddd',
+                    color: 'text.secondary',
+                    justifyContent: 'flex-start',
+                    '&:hover': { borderColor: palette.accent, color: palette.accent },
+                  }}
+                >
+                  {q}
+                </Button>
+              ))}
+            </Stack>
+          </Box>
+        )}
+        {messages.map((msg, i) => (
+          <Stack
+            key={i}
+            direction="row"
+            spacing={1}
+            alignItems="flex-start"
+            sx={{
+              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: '85%',
+            }}
+          >
+            {msg.role === 'assistant' && (
+              <Avatar sx={{ width: 28, height: 28, bgcolor: palette.primary, mt: 0.5 }}>
+                <SmartToyIcon sx={{ fontSize: 16 }} />
+              </Avatar>
+            )}
+            <Paper
+              elevation={0}
+              sx={{
+                px: 2, py: 1.25,
+                borderRadius: 2.5,
+                backgroundColor: msg.role === 'user' ? palette.primary : '#fff',
+                color: msg.role === 'user' ? '#fff' : 'text.primary',
+                border: msg.role === 'assistant' ? '1px solid #e0e0e0' : 'none',
+                whiteSpace: 'pre-wrap',
+                fontSize: '0.9rem',
+                lineHeight: 1.5,
+              }}
+            >
+              {msg.content}
+            </Paper>
+            {msg.role === 'user' && (
+              <Avatar sx={{ width: 28, height: 28, bgcolor: palette.accent, mt: 0.5 }}>
+                <PersonIcon sx={{ fontSize: 16 }} />
+              </Avatar>
+            )}
+          </Stack>
+        ))}
+        {loading && (
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ pl: 0.5 }}>
+            <Avatar sx={{ width: 28, height: 28, bgcolor: palette.primary }}>
+              <SmartToyIcon sx={{ fontSize: 16 }} />
+            </Avatar>
+            <CircularProgress size={18} sx={{ color: palette.primary }} />
+            <Typography variant="caption" color="text.secondary">Thinking…</Typography>
+          </Stack>
+        )}
+        <div ref={messagesEndRef} />
+      </Box>
+
+      {/* Input */}
+      <Box sx={{ p: 1.5, borderTop: '1px solid #e0e0e0', backgroundColor: '#fff' }}>
+        <Stack direction="row" spacing={1}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Ask about your training…"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
+            multiline
+            maxRows={3}
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+          />
+          <IconButton
+            onClick={() => send(input)}
+            disabled={!input.trim() || loading}
+            sx={{
+              backgroundColor: palette.accent,
+              color: '#fff',
+              '&:hover': { backgroundColor: '#d4900e' },
+              '&.Mui-disabled': { backgroundColor: '#eee' },
+              borderRadius: 2,
+              width: 40,
+              height: 40,
+              alignSelf: 'flex-end',
+            }}
+          >
+            <SendIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+        </Stack>
+      </Box>
+    </Paper>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Dashboard
 // ---------------------------------------------------------------------------
 
@@ -576,6 +787,7 @@ export default function CoachDashboard() {
 
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [importResult, setImportResult] = useState<CsvImportResult | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -754,6 +966,29 @@ export default function CoachDashboard() {
           </Box>
         </Stack>
       </Container>
+
+      {/* Chat FAB + Panel */}
+      {profile && !chatOpen && (
+        <IconButton
+          onClick={() => setChatOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            width: 56,
+            height: 56,
+            backgroundColor: palette.accent,
+            color: '#fff',
+            boxShadow: 4,
+            '&:hover': { backgroundColor: '#d4900e', transform: 'scale(1.05)' },
+            transition: 'transform 0.2s',
+            zIndex: 1200,
+          }}
+        >
+          <ChatIcon />
+        </IconButton>
+      )}
+      <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
     </Box>
   );
 }
