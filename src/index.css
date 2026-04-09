@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  font-family: 'Inter', 'Montserrat', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  background: #f7f9fb;
+  color: #222;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+:root {
+  --color-primary: #003366;
+  --color-accent: #F5A623;
+  --color-bg: #f7f9fb;
+  --color-text: #222;
+  --font-heading: 'Montserrat', 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  --line-height-heading: 1.3;
+  --line-height-body: 1.6;
+  --letter-spacing-heading: -0.02em;
+  --letter-spacing-body: 0.01em;
+}
+
+a, a:visited {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, a:focus {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-top: 0;
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+}
+
+p, li, span {
+  line-height: var(--line-height-body);
+  letter-spacing: var(--letter-spacing-body);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}

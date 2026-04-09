@@ -1,0 +1,69 @@
+# Eric Caskey — caskeycoding.com
+
+> Enterprise Platform Engineer | Amazon | 15+ years architecting microservice systems, change-safety workflows, and reliability standards at scale.
+
+## About
+
+Eric Caskey is an Enterprise Platform Engineer at Amazon, based in the NYC metro area. He builds microservice-based software platforms and change-safety systems that keep infrastructure current, reliable, and safe as adoption scales across teams.
+
+He architected and drove adoption of a monitor deployment platform that integrates internal tools and AWS CloudWatch through microservices. The system continuously ingests infrastructure change signals from multiple APIs, S3 datasets, and SNS notifications to keep monitors up to date. He also designed two Java-like PDL orchestration workflows used by every infrastructure change path in the application, with pre/post execution checks and automated rollback guardrails as the org standard for change safety.
+
+Eric leads distributed engineering teams across the US, Ireland, and India, with a focus on hiring, mentorship, and building cultures of autonomy, trust, and shared context.
+
+## Career
+
+- **Amazon** — Senior SDE (2024–present), Systems Development Engineer (2022–2024), New York City metro
+  - Microservice monitor deployment platform integrated with internal tools and AWS CloudWatch
+  - Two Java-like PDL orchestration workflows for pre/post checks and automated rollback
+  - Platform standard used by 20 engineers building on it, 100+ UI users, and multiple backend automation jobs
+- **Prudential Financial** — Cloud Engineering & SRE / Platform Architect (2013–2022), Roseland, NJ
+  - VitalNet: enterprise monitoring standardization
+  - RSA Self Service Portal + Mobile App: enterprise authentication platform ownership
+  - QR Code MFA enrollment portal — adopted by all enterprise help desks
+  - Sole owner of critical financial reporting during COVID-19
+- **Caskey Coding** — Owner/Operator (2015–2018), web development consultancy
+- **NJ Army National Guard** — Military Police (2009–2015), including Hurricane Sandy recovery operations
+
+## Leadership Scope
+
+- Architect enterprise-scale software platforms adopted across engineering teams
+- Build change-safety systems that enforce pre/post validation and automated rollback
+- Design microservice data pipelines that reconcile API, S3, and SNS infrastructure signals
+- Scale standards used by product engineers, UI users, and backend automation jobs
+- Translate reliability risk into durable platform guardrails and operational consistency
+
+## Core Skills
+
+Distributed Systems, Workflow Orchestration, API Design, Python, Java, AWS, CDK, Smithy, GenAI / AI Integration, Saga Pattern, Control Plane / Data Plane Architecture, Cloud Automation, Observability & Monitoring, Multi-Region Platform Architecture, Spec-Driven Development, Mentorship & Leadership, Agile Practices
+
+## Education
+
+BS, Software Development
+
+## Writing & Thought Leadership
+
+Eric writes about platform engineering, observability at scale, enterprise security platforms, and engineering leadership. Selected posts:
+
+- "How I Standardized Infrastructure Monitoring Across an Entire Fleet" — ICON at Amazon, parallels to VitalNet at Prudential, driving org-wide adoption of monitoring platforms
+- "Building Multi-Region Workflow Orchestration: Lessons from DUB, SEA, SJO, NYC" — cross-region consistency, SLA definitions, failure handling, self-service orchestration
+- "Enterprise MFA at Scale: QR Codes, Self-Service Portals, and Zero Help-Desk Friction" — RSA Self Service Portal, QR Code Portal, org-wide security platform ownership
+- "Spec-Driven Development and the Folder Architecture That Makes It Work" — structured specifications, GitHub Spec Kit workflows, folder architecture as AI orchestration
+- "Book Review: Enterprise Vibe Coding Playbook" — Doug Kerwin's framework for AI as an engineering accelerator
+
+## Values
+
+Integrity, Innovation, Empowerment, Service, Continuous Learning
+
+## Links
+
+- Website: https://caskeycoding.com
+- LinkedIn: https://www.linkedin.com/in/ericrcaskey
+- GitHub: https://github.com/caskeycoding
+
+## Site
+
+caskeycoding.com is an AI-powered personal branding platform built with React 18, TypeScript, MUI, Python Lambda backend, multi-agent AI orchestration via Amazon Bedrock, and AWS CDK infrastructure. It features a professional portfolio with org-scale case studies, technical blog, and an AI-assisted content pipeline for post generation, revision, and fact-checking.
+
+## Contact
+
+Connect via LinkedIn: https://www.linkedin.com/in/ericrcaskey
