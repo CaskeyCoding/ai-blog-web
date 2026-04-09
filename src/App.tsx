@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css';
-import './config/amplify';  // Import Amplify configuration
+import './config/amplify';
 import { getBlogPosts, getBlogPost, BlogPost as BlogPostType } from './api/blog';
 import { triggerAgentRevision, scheduleBlogPost, generateBlogPost, getAgentStatus } from './api/agent';
 import { generateLinkedInPost } from './api/linkedin';
@@ -16,18 +16,12 @@ import InsertCommentOutlinedIcon from '@mui/icons-material/InsertCommentOutlined
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
+import CoachDashboard from './components/CoachDashboard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
-const palette = {
-  primary: '#003366',
-  accent: '#F5A623',
-  text: '#222222',
-  background: '#ffffff',
-  error: '#d32f2f'
-};
+import theme, { palette } from './theme';
 
 function stripMarkdown(md: string): string {
   return md
@@ -208,8 +202,38 @@ function BlogPost() {
   }, [postId]);
 
   useEffect(() => {
-    document.title = post ? `${post.title} | Eric Caskey` : 'Blog | Eric Caskey';
-    return () => { document.title = 'Eric Caskey – Enterprise Platform Engineering'; };
+    const setMeta = (attr: string, key: string, content: string) => {
+      const el = document.querySelector(`meta[${attr}="${key}"]`);
+      if (el) el.setAttribute('content', content);
+    };
+    if (post) {
+      document.title = `${post.title} | Eric Caskey`;
+      const desc = post.content ? stripMarkdown(post.content).substring(0, 160) : '';
+      setMeta('property', 'og:title', post.title);
+      setMeta('property', 'og:description', desc);
+      setMeta('property', 'og:type', 'article');
+      if (post.imageUrl) setMeta('property', 'og:image', post.imageUrl);
+      setMeta('name', 'twitter:title', post.title);
+      setMeta('name', 'twitter:description', desc);
+      if (post.imageUrl) setMeta('name', 'twitter:image', post.imageUrl);
+    } else {
+      document.title = 'Blog | Eric Caskey';
+    }
+    return () => {
+      document.title = 'Eric Caskey – Enterprise Platform Engineering';
+      const d = {
+        title: 'Eric Caskey – Enterprise Platform Engineering at Scale',
+        desc: 'Architecting microservice platforms and change-safety systems at scale.',
+        img: '/EricCaskey.jfif',
+      };
+      setMeta('property', 'og:title', d.title);
+      setMeta('property', 'og:description', d.desc);
+      setMeta('property', 'og:type', 'website');
+      setMeta('property', 'og:image', d.img);
+      setMeta('name', 'twitter:title', d.title);
+      setMeta('name', 'twitter:description', d.desc);
+      setMeta('name', 'twitter:image', d.img);
+    };
   }, [post]);
 
   if (loading) {
@@ -854,27 +878,53 @@ function Navigation() {
     }
   };
 
+  const location = useLocation();
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
+  const navLinkSx = (path: string) => ({
+    color: isActive(path) ? palette.accent : palette.primary,
+    fontSize: { xs: '0.8rem', sm: '1rem' },
+    fontWeight: isActive(path) ? 600 : 500,
+    position: 'relative' as const,
+    pb: 0.5,
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: isActive(path) ? '70%' : 0,
+      height: 2,
+      background: palette.accent,
+      borderRadius: 1,
+      transition: 'width 0.2s ease',
+    },
+    '&:hover::after': { width: '70%' },
+  });
+
   return (
     <nav>
       <Container maxWidth="lg">
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
           py: { xs: 1.5, sm: 2 },
           flexWrap: { xs: 'wrap', sm: 'nowrap' }
         }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <Typography variant="h6" sx={{ 
-              color: palette.primary, 
+            <Typography variant="h6" sx={{
+              color: palette.primary,
               fontWeight: 600,
               fontSize: { xs: '1.1rem', sm: '1.25rem' }
             }}>
               Eric Caskey
             </Typography>
           </Link>
-          <Box sx={{ 
-            display: 'flex', 
+          <Box sx={{
+            display: 'flex',
             gap: { xs: 1.5, sm: 3 },
             flexWrap: 'wrap',
             justifyContent: { xs: 'center', sm: 'flex-end' },
@@ -883,55 +933,32 @@ function Navigation() {
             alignItems: 'center'
           }}>
             <Link to="/" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ 
-                color: palette.primary,
-                fontSize: { xs: '0.8rem', sm: '1rem' },
-                fontWeight: 500
-              }}>
-                Home
-              </Typography>
+              <Typography sx={navLinkSx('/')}>Home</Typography>
             </Link>
             <Link to="/ericcaskey" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ 
-                color: palette.primary,
-                fontSize: { xs: '0.8rem', sm: '1rem' },
-                fontWeight: 500
-              }}>
-                Case Studies
-              </Typography>
+              <Typography sx={navLinkSx('/ericcaskey')}>Experience</Typography>
             </Link>
             <Link to="/profile" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ 
-                color: palette.primary,
-                fontSize: { xs: '0.8rem', sm: '1rem' },
-                fontWeight: 500
-              }}>
-                Profile
-              </Typography>
+              <Typography sx={navLinkSx('/profile')}>Profile</Typography>
             </Link>
             <Link to="/blog" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ 
-                color: palette.primary,
-                fontSize: { xs: '0.8rem', sm: '1rem' },
-                fontWeight: 500
-              }}>
-                Blog
-              </Typography>
+              <Typography sx={navLinkSx('/blog')}>Blog</Typography>
             </Link>
-            <Link to="/admin" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ 
-                color: palette.primary,
-                fontSize: { xs: '0.8rem', sm: '1rem' },
-                fontWeight: 500
-              }}>
-                Admin
-              </Typography>
-            </Link>
-            
+            {isAuthenticated && (
+              <>
+                <Link to="/coach" style={{ textDecoration: 'none' }}>
+                  <Typography sx={navLinkSx('/coach')}>Coach</Typography>
+                </Link>
+                <Link to="/admin" style={{ textDecoration: 'none' }}>
+                  <Typography sx={navLinkSx('/admin')}>Admin</Typography>
+                </Link>
+              </>
+            )}
+
             {isAuthenticated && user && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
-                <Typography sx={{ 
-                  color: palette.primary,
+                <Typography sx={{
+                  color: palette.textSecondary,
                   fontSize: { xs: '0.7rem', sm: '0.8rem' },
                   fontWeight: 400
                 }}>
@@ -980,6 +1007,7 @@ function AppContent() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/coach" element={<CoachDashboard />} />
                 <Route 
                   path="/admin" 
                   element={
@@ -998,26 +1026,6 @@ function AppContent() {
     </Router>
   );
 }
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: palette.primary,
-    },
-    secondary: {
-      main: palette.accent,
-    },
-    error: {
-      main: palette.error,
-    },
-    background: {
-      default: palette.background,
-    },
-    text: {
-      primary: palette.text,
-    },
-  },
-});
 
 function App() {
   return (

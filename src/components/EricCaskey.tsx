@@ -8,17 +8,11 @@ import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { palette } from '../theme';
 
 const linkedInUrl = 'https://www.linkedin.com/in/ericrcaskey';
 const portraitUrl = '/EricCaskey_TechnologyLeader.jpg';
 const caskeyLogoUrl = '/caskeycoding.png';
-
-const palette = {
-  primary: '#003366', // deep blue
-  accent: '#F5A623', // gold/orange
-  background: '#f7f9fb',
-  text: '#222',
-};
 
 const LogoContainer = styled(Box)({
   width: 60,
@@ -374,6 +368,41 @@ export default function EricCaskey() {
               </TimelineItem>
             ))}
           </Timeline>
+        </Box>
+
+        <Box sx={{ mt: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Paper
+            component={Link}
+            to="/blog"
+            elevation={0}
+            sx={{
+              p: 3,
+              textDecoration: 'none',
+              border: `1px solid ${palette.border}`,
+              transition: 'all 0.2s ease',
+              '&:hover': { borderColor: palette.accent, transform: 'translateY(-2px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' },
+            }}
+          >
+            <Typography variant="overline" sx={{ color: palette.accent, fontWeight: 600 }}>Explore</Typography>
+            <Typography variant="h6" sx={{ color: palette.primary }}>Technical Blog</Typography>
+            <Typography variant="body2" sx={{ color: palette.textSecondary }}>Articles on distributed systems, platform architecture, and engineering leadership.</Typography>
+          </Paper>
+          <Paper
+            component={Link}
+            to="/profile"
+            elevation={0}
+            sx={{
+              p: 3,
+              textDecoration: 'none',
+              border: `1px solid ${palette.border}`,
+              transition: 'all 0.2s ease',
+              '&:hover': { borderColor: palette.accent, transform: 'translateY(-2px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' },
+            }}
+          >
+            <Typography variant="overline" sx={{ color: palette.accent, fontWeight: 600 }}>Learn More</Typography>
+            <Typography variant="h6" sx={{ color: palette.primary }}>Full Profile</Typography>
+            <Typography variant="body2" sx={{ color: palette.textSecondary }}>Skills, values, and leadership philosophy.</Typography>
+          </Paper>
         </Box>
       </Container>
     </Box>

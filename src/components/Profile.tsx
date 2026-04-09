@@ -1,12 +1,7 @@
 import React from 'react';
 import { Container, Typography, Box, Paper, Chip, Stack, Avatar } from '@mui/material';
-
-const palette = {
-  primary: '#003366',
-  accent: '#F5A623',
-  background: '#f7f9fb',
-  text: '#222',
-};
+import { Link } from 'react-router-dom';
+import { palette } from '../theme';
 
 const portraitUrl = '/EricCaskey_TechnologyLeader.jpg';
 
@@ -197,6 +192,41 @@ export default function Profile() {
             ))}
           </Stack>
         </Paper>
+
+        <Box sx={{ mt: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Paper
+            component={Link}
+            to="/ericcaskey"
+            elevation={0}
+            sx={{
+              p: 3,
+              textDecoration: 'none',
+              border: `1px solid ${palette.border}`,
+              transition: 'all 0.2s ease',
+              '&:hover': { borderColor: palette.accent, transform: 'translateY(-2px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' },
+            }}
+          >
+            <Typography variant="overline" sx={{ color: palette.accent, fontWeight: 600 }}>Explore</Typography>
+            <Typography variant="h6" sx={{ color: palette.primary }}>Career Journey</Typography>
+            <Typography variant="body2" sx={{ color: palette.textSecondary }}>Enterprise platform work at Amazon, Prudential, and beyond.</Typography>
+          </Paper>
+          <Paper
+            component={Link}
+            to="/blog"
+            elevation={0}
+            sx={{
+              p: 3,
+              textDecoration: 'none',
+              border: `1px solid ${palette.border}`,
+              transition: 'all 0.2s ease',
+              '&:hover': { borderColor: palette.accent, transform: 'translateY(-2px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' },
+            }}
+          >
+            <Typography variant="overline" sx={{ color: palette.accent, fontWeight: 600 }}>Read</Typography>
+            <Typography variant="h6" sx={{ color: palette.primary }}>Technical Blog</Typography>
+            <Typography variant="body2" sx={{ color: palette.textSecondary }}>Articles on distributed systems, platform architecture, and engineering leadership.</Typography>
+          </Paper>
+        </Box>
       </Container>
     </Box>
   );

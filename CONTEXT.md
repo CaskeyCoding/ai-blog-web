@@ -39,3 +39,7 @@ Config in `.env` (not committed): `REACT_APP_API_URL`, `REACT_APP_USER_POOL_ID`,
 - Run Git commands from `frontend/` only.
 - Before commit/push, verify `frontend/` is initialized as a Git repo.
 - If `frontend/` is not a Git repo yet, stop and ask whether to initialize it before committing.
+- Commit format: `type(frontend): summary`.
+- Typical types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`.
+- Keep one logical UI change per commit (routing, styling, SEO/meta, API client, etc.).
+- Add a body for user-facing behavior changes and rollout notes.

@@ -1,15 +1,17 @@
 import React from 'react';
-import { Box, Typography, Link as MuiLink } from '@mui/material';
-
-const palette = {
-  primary: '#003366',
-  accent: '#F5A623',
-  background: '#f7f9fb',
-  text: '#222',
-};
+import { Box, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { palette } from '../theme';
 
 const linkedInUrl = 'https://www.linkedin.com/in/ericrcaskey';
 const caskeyLogoUrl = '/caskeycoding.png';
+
+const navLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'Experience', to: '/ericcaskey' },
+  { label: 'Blog', to: '/blog' },
+  { label: 'Profile', to: '/profile' },
+];
 
 export default function Footer() {
   return (
@@ -17,36 +19,48 @@ export default function Footer() {
       component="footer"
       sx={{
         width: '100%',
-        py: 1,
-        px: 2,
+        py: 2,
+        px: 3,
         mt: 'auto',
         background: palette.background,
-        borderTop: `1px solid ${palette.primary}`,
+        borderTop: `1px solid ${palette.border}`,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: { xs: 'column', sm: 'row' },
-        gap: 1,
-        minHeight: 40,
+        gap: 1.5,
         boxSizing: 'border-box',
-        overflow: 'hidden'
       }}
     >
+      <Box display="flex" gap={3} flexWrap="wrap" justifyContent="center">
+        {navLinks.map(({ label, to }) => (
+          <Link key={to} to={to} style={{ textDecoration: 'none' }}>
+            <Typography variant="caption" sx={{
+              color: palette.primary,
+              fontWeight: 500,
+              '&:hover': { color: palette.accent },
+              transition: 'color 0.2s ease',
+            }}>
+              {label}
+            </Typography>
+          </Link>
+        ))}
+        <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          <Typography variant="caption" sx={{
+            color: palette.primary,
+            fontWeight: 500,
+            '&:hover': { color: palette.accent },
+            transition: 'color 0.2s ease',
+          }}>
+            LinkedIn
+          </Typography>
+        </a>
+      </Box>
       <Box display="flex" alignItems="center" gap={1}>
-        <img src={caskeyLogoUrl} alt="CaskeyCoding Logo" style={{ height: 22, marginRight: 6 }} />
-        <Typography variant="caption" sx={{ color: palette.primary, fontWeight: 500 }}>
+        <img src={caskeyLogoUrl} alt="CaskeyCoding Logo" style={{ height: 18 }} />
+        <Typography variant="caption" sx={{ color: palette.textSecondary, fontWeight: 400 }}>
           © {new Date().getFullYear()} Eric Caskey
         </Typography>
       </Box>
-      <MuiLink
-        href={linkedInUrl}
-        target="_blank"
-        rel="noopener"
-        underline="hover"
-        sx={{ color: palette.primary, fontWeight: 500, fontSize: 14 }}
-      >
-        LinkedIn
-      </MuiLink>
     </Box>
   );
-} 
+}

@@ -72,21 +72,6 @@ nav a:hover, nav a:focus {
   background: #f8fafc;
   text-decoration: none;
 }
-/* Subtle underline effect */
-nav a::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  width: 0;
-  height: 1px;
-  background: var(--color-accent);
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-nav a:hover::after, nav a:focus::after {
-  width: 70%;
-}
 
 button, .MuiButton-root {
   font-family: var(--font-heading);
@@ -142,16 +127,7 @@ button.secondary:hover, .MuiButton-outlined:hover {
   margin: 2rem auto;
 }
 
-/* Subtle card enhancements */
-.MuiPaper-root {
-  transition: all 0.2s ease !important;
-}
-
-.MuiPaper-root:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
-}
-
-section, .card, .MuiPaper-root {
+section, .card {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.04);
@@ -164,7 +140,7 @@ section, .card, .MuiPaper-root {
     gap: 1rem;
     padding: 0.5rem 0;
   }
-  section, .card, .MuiPaper-root {
+  section, .card {
     padding: 1rem;
   }
 }
