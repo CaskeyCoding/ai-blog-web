@@ -7,11 +7,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { palette } from '../../theme';
 import type { CommitteeConsensus, PositionData, Recommendation } from '../../api/finance';
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
-  C: '#f97316', D: '#ef4444', F: '#dc2626',
-};
+import { GRADE_COLORS } from './gradeColors';
 
 const ACTION_COLORS: Record<string, string> = {
   BUY: '#16a34a', HOLD: '#64748b', TRIM: '#eab308', SELL: '#ef4444', WATCH: '#06b6d4',

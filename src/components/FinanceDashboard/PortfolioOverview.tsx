@@ -2,16 +2,12 @@ import React from 'react';
 import { Box, Grid, Paper, Typography, LinearProgress } from '@mui/material';
 import { palette } from '../../theme';
 import type { Alert, CommitteeConsensus, PortfolioMetrics, PositionData, Recommendation } from '../../api/finance';
+import { GRADE_COLORS } from './gradeColors';
 
 const SEVERITY_COLORS: Record<string, string> = {
   CRITICAL: '#dc2626',
   WARNING: '#f59e0b',
   INFO: '#3b82f6',
-};
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
-  C: '#f97316', D: '#ef4444', F: '#dc2626',
 };
 
 interface Props {
