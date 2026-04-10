@@ -4,6 +4,7 @@ import {
 } from '@mui/material';
 import { palette } from '../../theme';
 import type { CommitteeConsensus } from '../../api/finance';
+import { GRADE_COLORS } from './gradeColors';
 
 const MEMBER_LABELS: Record<string, string> = {
   graham: 'Benjamin Graham',
@@ -19,11 +20,6 @@ const MEMBER_PHILOSOPHY: Record<string, string> = {
   lynch: 'Growth at a reasonable price, PEG ratio',
   dalio: 'All-weather allocation, risk parity, diversification',
   druckenmiller: 'Macro trends, momentum, best ideas',
-};
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
-  C: '#f97316', D: '#ef4444', F: '#dc2626',
 };
 
 const PRESETS: Record<string, Record<string, number>> = {

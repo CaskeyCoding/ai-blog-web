@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Box, Paper, Typography, ToggleButtonGroup, ToggleButton, CircularProgress,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip,
@@ -15,11 +15,7 @@ import {
   type SuggestionsData,
   type StockSuggestion,
 } from '../../api/finance';
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
-  C: '#f97316', D: '#ef4444', F: '#dc2626',
-};
+import { GRADE_COLORS } from './gradeColors';
 
 const GAP_ICONS: Record<string, React.ReactNode> = {
   HIGH: <ErrorOutlineIcon sx={{ fontSize: 18, color: '#ef4444' }} />,
@@ -36,17 +32,21 @@ export default function SuggestionsPanel({ reviewData }: Props) {
   const [data, setData] = useState<SuggestionsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const suggestionsRequestId = useRef(0);
 
   const load = useCallback(async (profile: string) => {
+    const reqId = ++suggestionsRequestId.current;
     setLoading(true);
     setError(null);
     try {
       const result = await getSuggestions(reviewData, profile);
+      if (reqId !== suggestionsRequestId.current) return;
       setData(result);
     } catch (err: any) {
+      if (reqId !== suggestionsRequestId.current) return;
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (reqId === suggestionsRequestId.current) setLoading(false);
     }
   }, [reviewData]);
 
@@ -86,7 +86,7 @@ export default function SuggestionsPanel({ reviewData }: Props) {
           Real stocks from the market that would address your portfolio's specific weaknesses,
           backed by live fundamentals from Financial Modeling Prep.
         </Typography>
-        <ToggleButtonGroup value={riskProfile} exclusive onChange={handleProfileChange} sx={{ mb: 1 }}>
+        <ToggleButtonGroup value={riskProfile} exclusive disabled={loading} onChange={handleProfileChange} sx={{ mb: 1 }}>
           <ToggleButton value="conservative" sx={{ px: 3 }}>Conservative</ToggleButton>
           <ToggleButton value="moderate" sx={{ px: 3 }}>Moderate</ToggleButton>
           <ToggleButton value="aggressive" sx={{ px: 3 }}>Aggressive</ToggleButton>

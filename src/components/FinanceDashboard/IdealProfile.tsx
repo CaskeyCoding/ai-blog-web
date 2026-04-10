@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   Box, Paper, Typography, ToggleButtonGroup, ToggleButton, CircularProgress,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip,
@@ -14,11 +14,7 @@ import {
   type FullReviewData,
   type IdealProfileData,
 } from '../../api/finance';
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
-  C: '#f97316', D: '#ef4444', F: '#dc2626',
-};
+import { GRADE_COLORS } from './gradeColors';
 
 const BUCKET_LABELS: Record<string, string> = {
   DEFENSIVE_CORE: 'Defensive Core',
@@ -46,19 +42,23 @@ export default function IdealProfile({ reviewData }: Props) {
   const [profileData, setProfileData] = useState<IdealProfileData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const profileRequestId = useRef(0);
 
   const handleProfileChange = useCallback(async (_: any, value: string | null) => {
     if (!value) return;
+    const reqId = ++profileRequestId.current;
     setRiskProfile(value);
     setLoading(true);
     setError(null);
     try {
       const data = await generateIdealProfile(value, reviewData);
+      if (reqId !== profileRequestId.current) return;
       setProfileData(data);
     } catch (err: any) {
+      if (reqId !== profileRequestId.current) return;
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (reqId === profileRequestId.current) setLoading(false);
     }
   }, [reviewData]);
 
@@ -91,6 +91,7 @@ export default function IdealProfile({ reviewData }: Props) {
         <ToggleButtonGroup
           value={riskProfile}
           exclusive
+          disabled={loading}
           onChange={handleProfileChange}
           sx={{ mb: 1 }}
         >

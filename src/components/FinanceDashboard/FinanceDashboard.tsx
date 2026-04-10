@@ -16,11 +16,7 @@ import ChatPanel from './ChatPanel';
 import IdealProfile from './IdealProfile';
 import SuggestionsPanel from './Suggestions';
 import { listReviews, type FullReviewData, type ReviewSummary } from '../../api/finance';
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
-  C: '#f97316', D: '#ef4444', F: '#dc2626',
-};
+import { GRADE_COLORS } from './gradeColors';
 
 export default function FinanceDashboard() {
   const [reviewData, setReviewData] = useState<FullReviewData | null>(null);
