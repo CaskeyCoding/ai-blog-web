@@ -1,14 +1,21 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Container, Typography, Box, Paper, Button, Tabs, Tab, Chip, CircularProgress,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Skeleton,
 } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import HistoryIcon from '@mui/icons-material/History';
 import { palette } from '../../theme';
+import { API_CONFIG } from '../../config';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import PortfolioOverview from './PortfolioOverview';
 import PositionTable from './PositionTable';
 import CommitteeView from './CommitteeView';
 import Recommendations from './Recommendations';
-import type { FullReviewData } from '../../api/finance';
+import ChatPanel from './ChatPanel';
+import IdealProfile from './IdealProfile';
+import SuggestionsPanel from './Suggestions';
+import { listReviews, type FullReviewData, type ReviewSummary } from '../../api/finance';
 
 const GRADE_COLORS: Record<string, string> = {
   'A+': '#16a34a', A: '#22c55e', 'B+': '#eab308', B: '#f59e0b',
@@ -20,6 +27,15 @@ export default function FinanceDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState(0);
+  const [pastReviews, setPastReviews] = useState<ReviewSummary[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    listReviews()
+      .then(setPastReviews)
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
+  }, []);
 
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -30,17 +46,55 @@ export default function FinanceDashboard() {
 
     try {
       const text = await file.text();
-      const response = await fetch('/api/finance/review-local', {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      if (!token) throw new Error('Not authenticated');
+
+      const response = await fetch(`${API_CONFIG.API_URL}/finance/review`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ csv_content: text }),
       });
 
-      if (!response.ok) throw new Error('Review failed');
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.error || `Review failed (${response.status})`);
+      }
       const data: FullReviewData = await response.json();
       setReviewData(data);
+      // Refresh history to include the new review
+      listReviews().then(setPastReviews).catch(() => {});
     } catch (err: any) {
       setError(err.message || 'Failed to process CSV');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadPastReview = useCallback(async (reviewId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      if (!token) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${API_CONFIG.API_URL}/finance/reviews?review_id=${encodeURIComponent(reviewId)}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (!response.ok) throw new Error('Failed to load review');
+      const result = await response.json();
+      if (result.data) {
+        setReviewData(result.data);
+      } else {
+        throw new Error('Review data not found');
+      }
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -89,6 +143,62 @@ export default function FinanceDashboard() {
             Export from Fidelity: Positions &rarr; Download &rarr; CSV
           </Typography>
         </Box>
+
+        {/* Past reviews */}
+        {(pastReviews.length > 0 || historyLoading) && (
+          <Paper sx={{ mt: 6, p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <HistoryIcon sx={{ color: palette.primary }} />
+              <Typography variant="h6" sx={{ color: palette.primary, fontWeight: 700 }}>
+                Past Reviews
+              </Typography>
+            </Box>
+            {historyLoading ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {[1, 2, 3].map(i => <Skeleton key={i} variant="rectangular" height={40} />)}
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="center">Grade</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Value</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="center">Positions</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="center">Alerts</TableCell>
+                      <TableCell />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {pastReviews.map(r => (
+                      <TableRow key={r.review_id} hover sx={{ cursor: 'pointer' }} onClick={() => loadPastReview(r.review_id)}>
+                        <TableCell>{new Date(r.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                        <TableCell align="center">
+                          <Typography sx={{ fontWeight: 700, color: GRADE_COLORS[r.portfolio_grade] || palette.text }}>
+                            {r.portfolio_grade}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">${Number(r.total_value).toLocaleString()}</TableCell>
+                        <TableCell align="center">{r.position_count}</TableCell>
+                        <TableCell align="center">
+                          {r.alert_count > 0 && (
+                            <Chip size="small" label={r.alert_count} color="warning" variant="outlined" />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ color: palette.primary, fontWeight: 600 }}>
+                            Load
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Paper>
+        )}
       </Container>
     );
   }
@@ -157,6 +267,9 @@ export default function FinanceDashboard() {
           <Tab label="Positions" />
           <Tab label="Committee" />
           <Tab label="Recommendations" />
+          <Tab label="Ideal Profile" />
+          <Tab label="Suggestions" />
+          <Tab label="Chat" />
         </Tabs>
       </Box>
 
@@ -185,6 +298,15 @@ export default function FinanceDashboard() {
           recommendations={reviewData.recommendations}
           alerts={reviewData.alerts}
         />
+      )}
+      {tab === 4 && (
+        <IdealProfile reviewData={reviewData} />
+      )}
+      {tab === 5 && (
+        <SuggestionsPanel reviewData={reviewData} />
+      )}
+      {tab === 6 && (
+        <ChatPanel reviewData={reviewData} />
       )}
     </Container>
   );
